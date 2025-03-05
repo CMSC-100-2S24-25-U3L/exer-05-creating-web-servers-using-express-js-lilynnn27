@@ -8,35 +8,99 @@ const FILE_PATH = "books.txt";
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get('/', (req, res) => {
-    res.send('BOOK INFORMATION');
-});
-
 app.post('/add-book', (req, res) => {
     const { bookName, isbn, author, yearPublished } = req.body;
+    let result = {success: "false"}; //default for easier returning values
 
     if (!bookName || !isbn || !author || !yearPublished) {
-        return res.status(400).json({ success: false, message: "All fields are required." });
-    }
+        console.log("Unsuccessfully Added Book: Invalid strings or inputs. \n"); //for checking
+        return res.json(result);
+        }
 
     let existingBooks = '';
     if (existsSync(FILE_PATH)) {
         existingBooks = readFileSync(FILE_PATH, 'utf8');
     }
 
-    if (existingBooks.includes(`ISBN: ${isbn}`)) {
-        return res.status(400).json({ success: false, message: `A book with this ISBN ${isbn} already exists.` });
+    if (existingBooks.includes(`${isbn}`)) {
+        console.log(`Unsuccessfully Added Book: A book with ISBN ${isbn} already exixts. \n`); //for checking
+        return res.json(result);
     }
 
-    const bookEntry = `Book: ${bookName}, ISBN: ${isbn}, Author: ${author}, Year Published: ${yearPublished}\n`;
-    appendFileSync(FILE_PATH, bookEntry);
+    try {
+        const bookEntry = `${bookName},${isbn},${author},${yearPublished}\n`;
+        appendFileSync(FILE_PATH, bookEntry);   
+    } catch (err) {
+        console.log(result);
+        console.log("Unsuccessfully Added Book: Something went wrong \n");
+        return;
+    }
 
-    res.json({ success: true, message: `Added a Book: ${bookName}, ${isbn}, ${author}, ${yearPublished}` });
+    //set as true once all conditions are checked
+    result.success = true;
+    console.log(`Successfully Added Book: ${bookName}, ${isbn}, ${author}, ${yearPublished} \n`); //for checking
+    return res.json(result);
 });
 
-app.get('/add-book', (req, res) => {
-    res.send('To add a book, please use a POST request with JSON data.');
-}); //for testing
+app.get('/find-by-isbn-author', (req, res) => {
+
+    console.log("Received query", req.query); //for checking
+
+    let bookFound = [];
+    const existingBooks = readFileSync(FILE_PATH, 'utf8');
+    let books = existingBooks.split('\n');
+
+    //loop through the books then find the matches
+    for(let i = 0; i < books.length; i++){
+        let bookDetails = books[i].split(','); 
+        if (bookDetails.length < 4){
+            continue
+        }
+
+        let book = {
+            bookName: bookDetails[0],
+            isbn: bookDetails[1],
+            author: bookDetails[2],
+            yearPublished: bookDetails[3]
+        };
+
+        if(book.isbn === req.query.isbn && book.author === req.query.author){
+            bookFound.push(book);
+        }
+    }
+
+    return res.json(bookFound);
+});
+
+app.get('/find-by-author', (req, res) => {
+
+    console.log("Received query", req.query); //for checking
+
+    let bookFound = [];
+    const existingBooks = readFileSync(FILE_PATH, 'utf8');
+    let books = existingBooks.split('\n');
+
+    //loop through the books then find the matches
+    for(let i = 0; i < books.length; i++){
+        let bookDetails = books[i].split(','); 
+        if (bookDetails.length < 4){
+            continue
+        }
+
+        let book = {
+            bookName: bookDetails[0],
+            isbn: bookDetails[1],
+            author: bookDetails[2],
+            yearPublished: bookDetails[3]
+        };
+
+        if(book.author === req.query.author){
+            bookFound.push(book);
+        }
+    }
+
+    return res.json(bookFound);
+});
 
 
 app.listen(PORT, () => {
