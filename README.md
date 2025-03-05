@@ -3,4 +3,5 @@
 **Course:** BS Computer Science <br/>
 
 ## **Key Takeaways from Exercise** 
-<br/>
+The POST and GET functions are used by the server for requests and responses. 
+POST is used to send commands or requests while GET is used to read only.<br/>
