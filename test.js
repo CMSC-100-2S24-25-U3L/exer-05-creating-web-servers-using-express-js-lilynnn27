@@ -6,7 +6,7 @@ needle.post(
         bookName: 'Harry Potter and the Philosopher’s Stone',
         isbn: "978-0-7475-3269-9",  
         author: "J.K Rowling",
-        yearPublished: 1997
+        yearPublished: "1997"
     },
     
     { json: true }, 
@@ -25,7 +25,7 @@ needle.post(
         bookName: 'Harry Potter and the Chamber of Secrets',
         isbn: "0-7475-3849-2",  
         author: "J.K Rowling",
-        yearPublished: 1998
+        yearPublished: "1998"
     },
 
     { json: true }, 
@@ -45,7 +45,7 @@ needle.post(
         bookName: 'The Little Prince',
         isbn: "978-0156012195",  
         author: "Antoine Saint-Exupery",
-        yearPublished: 1943
+        yearPublished: "1943"
     },
 
     { json: true }, 

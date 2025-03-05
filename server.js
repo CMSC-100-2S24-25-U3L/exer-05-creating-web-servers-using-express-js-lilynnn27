@@ -12,21 +12,22 @@ app.post('/add-book', (req, res) => {
     const { bookName, isbn, author, yearPublished } = req.body;
     let result = {success: "false"}; //default for easier returning values
 
-    if (!bookName || !isbn || !author || !yearPublished) {
+    if (!bookName || !isbn || !author || !yearPublished) { //check if the strings are valid
         console.log("Unsuccessfully Added Book: Invalid strings or inputs. \n"); //for checking
         return res.json(result);
         }
 
-    let existingBooks = '';
-    if (existsSync(FILE_PATH)) {
-        existingBooks = readFileSync(FILE_PATH, 'utf8');
+    let existingBooks = ''; 
+    if (existsSync(FILE_PATH)) { //check if the file exists (to avoid errors when running the server with no inputs yet)
+        existingBooks = readFileSync(FILE_PATH, 'utf8'); 
     }
 
-    if (existingBooks.includes(`${isbn}`)) {
+    if (existingBooks.includes(`${isbn}`)) { //check if the isbn is already in the books.txt | ensures uniqueness 
         console.log(`Unsuccessfully Added Book: A book with ISBN ${isbn} already exixts. \n`); //for checking
         return res.json(result);
     }
 
+    //try-catch in appending to the books.txt
     try {
         const bookEntry = `${bookName},${isbn},${author},${yearPublished}\n`;
         appendFileSync(FILE_PATH, bookEntry);   
@@ -44,19 +45,17 @@ app.post('/add-book', (req, res) => {
 
 app.get('/find-by-isbn-author', (req, res) => {
 
-    console.log("Received query", req.query); //for checking
+    console.log("Received query", req.query); //for checking 
 
-    let bookFound = [];
+    let bookFound = []; //storage ng magiging match
     const existingBooks = readFileSync(FILE_PATH, 'utf8');
-    let books = existingBooks.split('\n');
+    let books = existingBooks.split('\n'); //divide into array of strings (book1, book2, etc.)
 
     //loop through the books then find the matches
     for(let i = 0; i < books.length; i++){
-        let bookDetails = books[i].split(','); 
-        if (bookDetails.length < 4){
-            continue
-        }
+        let bookDetails = books[i].split(','); //divides the array of strings per "detail" (name, isbn, etc.)
 
+        //turned it to an object
         let book = {
             bookName: bookDetails[0],
             isbn: bookDetails[1],
@@ -64,12 +63,13 @@ app.get('/find-by-isbn-author', (req, res) => {
             yearPublished: bookDetails[3]
         };
 
+        //check if the details matches the one on the query
         if(book.isbn === req.query.isbn && book.author === req.query.author){
-            bookFound.push(book);
+            bookFound.push(book); //add it to the storage
         }
     }
 
-    return res.json(bookFound);
+    return res.json(bookFound); //to return to the web server created
 });
 
 app.get('/find-by-author', (req, res) => {
@@ -78,15 +78,16 @@ app.get('/find-by-author', (req, res) => {
 
     let bookFound = [];
     const existingBooks = readFileSync(FILE_PATH, 'utf8');
-    let books = existingBooks.split('\n');
+    let books = existingBooks.split('\n'); //divide into array of strings (book1, book2, etc.)
 
     //loop through the books then find the matches
     for(let i = 0; i < books.length; i++){
-        let bookDetails = books[i].split(','); 
+        let bookDetails = books[i].split(','); //divides the array of strings per "detail" (name, isbn, etc.) 
         if (bookDetails.length < 4){
             continue
         }
 
+        //turned it to an object
         let book = {
             bookName: bookDetails[0],
             isbn: bookDetails[1],
@@ -94,12 +95,13 @@ app.get('/find-by-author', (req, res) => {
             yearPublished: bookDetails[3]
         };
 
+        //check if the details matches the one on the query        
         if(book.author === req.query.author){
-            bookFound.push(book);
+            bookFound.push(book); //add it to the storage
         }
     }
 
-    return res.json(bookFound);
+    return res.json(bookFound); //to return to the web server created
 });
 
 
